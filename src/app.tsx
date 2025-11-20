@@ -1,21 +1,36 @@
+import { House, History, Sun, SettingsIcon } from 'lucide-react';
+
+import { Container } from './components/Container';
+import { Logo } from './components/Logo';
+import { Menu } from './components/Menu';
+import { ButtonMenu } from './components/buttonMenu';
+
 import './styles/theme.css';
 import './styles/global.css';
-import { Clock2 } from 'lucide-react';
-import { Heading } from './components/Heading';
 
 export function App() {
 	return (
 		<>
-			<div className='container'>
-				<div className='content'>
-					<section>
-						<Heading>
-							<Clock2 />
-							<h1>Chronos</h1>
-						</Heading>
-					</section>
-				</div>
-			</div>
+			<Container>
+				<Logo />
+				<Menu>
+					<ButtonMenu>
+						<House />
+					</ButtonMenu>
+
+					<ButtonMenu>
+						<History />
+					</ButtonMenu>
+
+					<ButtonMenu>
+						<SettingsIcon />
+					</ButtonMenu>
+
+					<ButtonMenu>
+						<Sun />
+					</ButtonMenu>
+				</Menu>
+			</Container>
 		</>
 	);
 }

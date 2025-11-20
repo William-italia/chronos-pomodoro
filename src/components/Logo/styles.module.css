@@ -1,0 +1,9 @@
+.logoLink {
+	padding-top: 3.2rem;
+	color: var(--primary);
+	transition: filter 0.1s ease-in-out;
+}
+
+.logoLink:hover {
+	filter: brightness(80%);
+}
