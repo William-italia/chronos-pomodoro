@@ -6,7 +6,7 @@ type buttonMenuProps = {
 
 export function ButtonMenu({ children }: buttonMenuProps) {
 	return (
-		<a className={`${styles.button} inline-block p-4 rounded-md`} href='#'>
+		<a className={`${styles.button} inline-block p-4 rounded-xl`} href='#'>
 			{children}
 		</a>
 	);

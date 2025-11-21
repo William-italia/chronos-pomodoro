@@ -4,7 +4,7 @@ type MenuProps = {
 
 export function Menu({ children }: MenuProps) {
 	return (
-		<div className='flex  items-center justify-center space-x-8 my-12'>
+		<div className='flex  items-center justify-center space-x-8 mt-12'>
 			{children}
 		</div>
 	);
