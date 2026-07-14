@@ -1,32 +1,32 @@
 import clsx from 'clsx';
-import type { InputHTMLAttributes } from 'react';
 import { twMerge } from 'tailwind-merge';
 
-type InputProps = InputHTMLAttributes<HTMLInputElement> & {
-  title: string;
-  type: 'number' | 'text';
-  placeHolder?: string;
-};
+{
+  /* InputHTMLAttributes<HTMLInputElement> & */
+}
+type DefaultInputProps = {
+  labelText: string;
+} & React.ComponentProps<'input'>;
 
-export function Input({
+export function DefaultInput({
   id,
-  title,
+  labelText,
   type = 'number',
-  placeHolder,
+  placeholder,
   min = 1,
   max = 2,
   className,
   ...props
-}: InputProps) {
+}: DefaultInputProps) {
   return (
     <div className={twMerge(clsx('flex flex-col items-center gap-2.5'))}>
       <label className='text-lg' htmlFor={id}>
-        {title}:
+        {labelText}:
       </label>
       <input
         className={twMerge(
           clsx(
-            'border-b-2 border-primary text-center p-1 outline-0',
+            'border-b-2 border-primary text-center p-1 outline-none focus:outline-none disabled:border-disabled disabled:text-text-muted',
             className,
           ),
         )}
@@ -34,7 +34,7 @@ export function Input({
         type={type}
         name={id}
         placeholder={
-          type === 'text' ? (placeHolder ?? 'Estudar Nest') : undefined
+          type === 'text' ? (placeholder ?? 'Estudar Nest') : undefined
         }
         min={type === 'number' ? min : 1}
         max={type === 'number' ? max : 99}

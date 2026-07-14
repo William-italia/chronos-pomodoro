@@ -7,7 +7,8 @@ type ButtonMenuProps = {
   title: string;
   className?: string;
   children: React.ReactNode;
-};
+} & React.ComponentProps<'button'> &
+  React.ComponentProps<'a'>;
 
 export function ButtonMenu({
   as = 'a',
@@ -15,6 +16,7 @@ export function ButtonMenu({
   title,
   children,
   className,
+  ...props
 }: ButtonMenuProps) {
   const Component = as;
   return (
@@ -28,6 +30,7 @@ export function ButtonMenu({
       )}
       aria-label={title}
       title={title}
+      {...props}
     >
       {children}
     </Component>

@@ -19,6 +19,7 @@
   --success: #22c55e;
   --warning: #eab308;
   --error: #991b1b;
+  --error-hover: #690404;
   --info: #0ea5e9;
 
   --text-over-primary: #0a0f1a;
@@ -34,4 +35,15 @@
 
   --disabled: #555f7d;
   --text-disabled: #aab3cc;
+}
+
+:root[data-theme='light'] {
+  --gray-900: #cecbcb;
+
+  --text-over-primary: #ffffff;
+  --text-default: #0a0f1a;
+  --text-muted: #272f43;
+
+  --link-color: #48b305;
+  --link-hover: #065f46;
 }

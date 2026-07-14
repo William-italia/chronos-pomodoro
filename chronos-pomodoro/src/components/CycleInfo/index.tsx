@@ -1,4 +1,4 @@
-type CycleInfoProps = {
+export type CycleInfoProps = {
   action: 'foque' | 'descanse';
   duration: number;
 };
