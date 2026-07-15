@@ -5,94 +5,85 @@ import { CycleInfo } from '../CycleInfo';
 import { CyclesContent } from '../CyclesContent';
 import { DefaultButton } from '../DefaultButton';
 import { CirclePlayIcon } from 'lucide-react';
-import { Circle } from '../Circle';
-import { useContext } from 'react';
-import { TaskContext } from '../../contexts/TaskContext';
+import type { TaskModel } from '../../models/TaskModel';
+import { useTaskContext } from '../../contexts/TaskContext/useTaskContext';
+import { useEffect, useRef } from 'react';
+import { handleNextCurrentCycle } from '../../utils/handleNextCurrentCycle';
+import { formatSeconds } from '../../utils/formatSeconds';
+import { handleCycleGetDurationAndType } from '../../utils/handleCycleGetDurationAndType';
+import { renderCycles } from '../../utils/renderCycles';
 
 export function MainForm() {
-  const { state, setState } = useContext(TaskContext);
+  const { state, setState } = useTaskContext();
+  const inputRef = useRef<HTMLInputElement>(null);
 
-  function updateTimer() {
+  useEffect(() => {
+    localStorage.setItem('tasks', JSON.stringify(state.tasks));
+  }, [state.tasks]);
+
+  const { currentCycle } = state;
+
+  const {
+    duration,
+    action: type,
+    label,
+  } = handleCycleGetDurationAndType(currentCycle, state.config);
+
+  function handleCreateNewTask(event: React.SubmitEvent<HTMLFormElement>) {
+    event.preventDefault();
+
+    if (inputRef.current === null) return console.log('input not search');
+
+    const taskName = inputRef.current.value.trim();
+    if (taskName === '') return alert('Task name required!');
+
+    const newTask: TaskModel = {
+      id: Date.now().toString(),
+      name: taskName.trim(),
+      startDate: Date.now(),
+      completeDate: null, // timer
+      interruptDate: null, // btn
+      duration,
+      type,
+    };
+
+    const secondsRemaining = newTask.duration * 60;
+
     setState((prevState) => {
       return {
         ...prevState,
-        formattedSecondsRemaining: '23:59',
+        activeTask: newTask,
+        currentCycle: handleNextCurrentCycle(prevState.currentCycle),
+        secondsRemaining,
+        formattedSecondsRemaining: formatSeconds(secondsRemaining),
+        tasks: [...prevState.tasks, newTask],
       };
     });
   }
-
-  function renderCircles() {
-    const circles = [];
-
-    for (let i = 1; i <= state.currentCycle; i++) {
-      if (i === 8) {
-        circles.push(
-          <Circle
-            key={i}
-            type={'descanso longo'}
-            duration={25}
-            color='bg-info'
-          />,
-        );
-        return circles;
-      }
-
-      if (i % 2 === 0) {
-        circles.push(
-          <Circle key={i} type={'Descanso'} duration={5} color='bg-success' />,
-        );
-      }
-
-      if (i % 2 !== 0) {
-        circles.push(<Circle key={i} type={'Foco'} duration={25} />);
-      }
-    }
-
-    return circles.length !== 0 ? circles : '';
-  }
-
-  function renderInfo() {
-    if (state.currentCycle === 7) {
-      return {
-        action: 'descanse',
-        duration: state.config.longBreakTime,
-      } as const;
-    }
-
-    if (state.currentCycle % 2 !== 0) {
-      return {
-        action: 'descanse' as const,
-        duration: state.config.shortBreakTime,
-      } as const;
-    }
-
-    return {
-      action: 'foque' as const,
-      duration: state.config.workTime,
-    } as const;
-  }
-
-  const infos = renderInfo();
-
   return (
     <form
+      onSubmit={handleCreateNewTask}
       className={twMerge(clsx('flex flex-col my-16 items-center'))}
       action=''
     >
       <div className={twMerge(clsx('flex flex-col gap-8'))}>
-        <DefaultInput id={'taskName'} labelText={'Task'} type={'text'} />
+        <DefaultInput
+          id={'taskName'}
+          labelText={'Task'}
+          type={'text'}
+          ref={inputRef}
+        />
 
-        <CycleInfo action={infos.action} duration={infos.duration} />
-        <CyclesContent>{renderCircles()}</CyclesContent>
+        <CycleInfo action={label} duration={duration} />
+        <CyclesContent>
+          {renderCycles(currentCycle, state.config)}
+        </CyclesContent>
 
         <DefaultButton
+          type='submit'
           icon={<CirclePlayIcon size={32} />}
           aria-label='play/pause'
           title='Play / Pause'
-          onClick={(event: React.MouseEvent<HTMLButtonElement>) => {
-            event.preventDefault();
-            updateTimer();
-          }}
         />
       </div>
     </form>
