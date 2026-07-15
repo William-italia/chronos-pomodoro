@@ -6,11 +6,21 @@ import { CyclesContent } from '../CyclesContent';
 import { DefaultButton } from '../DefaultButton';
 import { CirclePlayIcon } from 'lucide-react';
 import { Circle } from '../Circle';
-import type { HomeProps } from '../../pages/home';
+import { useContext } from 'react';
+import { TaskContext } from '../../contexts/TaskContext';
 
-type MainFormProps = {} & HomeProps;
+export function MainForm() {
+  const { state, setState } = useContext(TaskContext);
 
-export function MainForm({ state, updateTimer }: MainFormProps) {
+  function updateTimer() {
+    setState((prevState) => {
+      return {
+        ...prevState,
+        formattedSecondsRemaining: '23:59',
+      };
+    });
+  }
+
   function renderCircles() {
     const circles = [];
 
