@@ -4,13 +4,13 @@ import { DefaultInput } from '../DefaultInput';
 import { CycleInfo } from '../CycleInfo';
 import { CyclesContent } from '../CyclesContent';
 import { DefaultButton } from '../DefaultButton';
-import { CirclePlayIcon } from 'lucide-react';
+import { CirclePlayIcon, CircleStopIcon } from 'lucide-react';
 import type { TaskModel } from '../../models/TaskModel';
 import { useTaskContext } from '../../contexts/TaskContext/useTaskContext';
 import { useEffect, useRef } from 'react';
 import { handleNextCurrentCycle } from '../../utils/handleNextCurrentCycle';
-import { formatSeconds } from '../../utils/formatSeconds';
-import { handleCycleGetDurationAndType } from '../../utils/handleCycleGetDurationAndType';
+import { formatSecondsToMinutes } from '../../utils/formatSeconds';
+import { getTypeNextCycle } from '../../utils/getTypeNextCycle';
 import { renderCycles } from '../../utils/renderCycles';
 
 export function MainForm() {
@@ -22,12 +22,35 @@ export function MainForm() {
   }, [state.tasks]);
 
   const { currentCycle } = state;
+  const { type, label } = getTypeNextCycle(currentCycle);
 
-  const {
-    duration,
-    action: type,
-    label,
-  } = handleCycleGetDurationAndType(currentCycle, state.config);
+  function handlePlayAndPause(
+    event: React.MouseEvent<HTMLButtonElement, MouseEvent>,
+  ) {
+    if (!state.activeTask) return;
+
+    event.preventDefault();
+
+    const confirmed = window.confirm(
+      'Tem certeza que deseja interromper esta tarefa?',
+    );
+
+    if (confirmed) {
+      setState((prevState) => {
+        return {
+          ...prevState,
+          activeTask: null,
+          secondsRemaining: 0,
+          formattedSecondsRemaining: '00:00',
+          tasks: prevState.tasks.map((task: TaskModel) =>
+            task.id === prevState.activeTask!.id
+              ? { ...task, interruptDate: Date.now() }
+              : task,
+          ),
+        };
+      });
+    }
+  }
 
   function handleCreateNewTask(event: React.SubmitEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -43,7 +66,7 @@ export function MainForm() {
       startDate: Date.now(),
       completeDate: null, // timer
       interruptDate: null, // btn
-      duration,
+      duration: state.config[type],
       type,
     };
 
@@ -55,35 +78,54 @@ export function MainForm() {
         activeTask: newTask,
         currentCycle: handleNextCurrentCycle(prevState.currentCycle),
         secondsRemaining,
-        formattedSecondsRemaining: formatSeconds(secondsRemaining),
+        formattedSecondsRemaining: formatSecondsToMinutes(secondsRemaining),
         tasks: [...prevState.tasks, newTask],
       };
     });
   }
+
   return (
     <form
       onSubmit={handleCreateNewTask}
-      className={twMerge(clsx('flex flex-col my-16 items-center'))}
+      className={twMerge(clsx('flex flex-col my-16 items-center '))}
       action=''
     >
-      <div className={twMerge(clsx('flex flex-col gap-8'))}>
+      <div className={twMerge(clsx('flex flex-col items-center gap-8 '))}>
         <DefaultInput
           id={'taskName'}
           labelText={'Task'}
           type={'text'}
           ref={inputRef}
+          disabled={!!state.activeTask}
         />
 
-        <CycleInfo action={label} duration={duration} />
-        <CyclesContent>
-          {renderCycles(currentCycle, state.config)}
-        </CyclesContent>
+        <CycleInfo action={label} duration={state.config[type]} />
+
+        {state.currentCycle > 0 && (
+          <CyclesContent>
+            {renderCycles(currentCycle, state.config)}
+          </CyclesContent>
+        )}
 
         <DefaultButton
           type='submit'
-          icon={<CirclePlayIcon size={32} />}
-          aria-label='play/pause'
-          title='Play / Pause'
+          color={state.activeTask ? 'bg-error' : 'bg-primary'}
+          icon={
+            state.activeTask ? (
+              <>
+                <CircleStopIcon size={32} />
+                <span className='ml-2'>Pausar</span>
+              </>
+            ) : (
+              <>
+                <CirclePlayIcon size={32} />
+                <span className='ml-2'>Iniciar</span>
+              </>
+            )
+          }
+          aria-label={state.activeTask ? 'Parar timer' : 'Iniciar timer'}
+          title={state.activeTask ? 'Parar timer' : 'Iniciar timer'}
+          onClick={handlePlayAndPause}
         />
       </div>
     </form>

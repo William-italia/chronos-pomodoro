@@ -1,3 +1,3 @@
 export function handleNextCurrentCycle(currentCycle: number) {
-  return currentCycle >= 8 ? 1 : currentCycle + 1;
+  return currentCycle === 0 || currentCycle === 8 ? 1 : currentCycle + 1;
 }

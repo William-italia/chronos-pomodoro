@@ -15,7 +15,7 @@ export function DefaultButton({
     <button
       className={twMerge(
         clsx(
-          'flex items-center justify-center cursor-pointer text-text-over-primary hover:bg-link-hover duration-200 rounded-lg p-3',
+          'flex self-center justify-center cursor-pointer text-text-over-primary hover:bg-link-hover duration-200 rounded-lg p-3 w-62.5',
           color === 'bg-primary'
             ? 'bg-link-color'
             : 'bg-error text-text-over-error hover:bg-error-hover',

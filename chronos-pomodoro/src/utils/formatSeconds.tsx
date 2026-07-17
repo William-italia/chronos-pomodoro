@@ -1,4 +1,4 @@
-export function formatSeconds(secondsRemaining: number) {
+export function formatSecondsToMinutes(secondsRemaining: number) {
   const minutes = Math.floor(secondsRemaining / 60);
   const seconds = secondsRemaining % 60;
 

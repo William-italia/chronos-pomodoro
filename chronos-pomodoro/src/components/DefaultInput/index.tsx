@@ -34,7 +34,9 @@ export function DefaultInput({
         type={type}
         name={id}
         placeholder={
-          type === 'text' ? (placeholder ?? 'Estudar Nest') : undefined
+          type === 'text'
+            ? (placeholder ?? 'ex.: estudar para entrevista')
+            : undefined
         }
         min={type === 'number' ? min : 1}
         max={type === 'number' ? max : 99}
