@@ -8,13 +8,13 @@ import { CirclePlayIcon, CircleStopIcon } from 'lucide-react';
 import type { TaskModel } from '../../models/TaskModel';
 import { useTaskContext } from '../../contexts/TaskContext/useTaskContext';
 import { useEffect, useRef } from 'react';
-import { handleNextCurrentCycle } from '../../utils/handleNextCurrentCycle';
-import { formatSecondsToMinutes } from '../../utils/formatSeconds';
 import { getTypeNextCycle } from '../../utils/getTypeNextCycle';
 import { renderCycles } from '../../utils/renderCycles';
+import { TaskActionTypes } from '../../contexts/TaskContext/taskActions';
 
 export function MainForm() {
-  const { state, setState } = useTaskContext();
+  const { state, dispatch } = useTaskContext();
+
   const inputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
@@ -24,9 +24,8 @@ export function MainForm() {
   const { currentCycle } = state;
   const { type, label } = getTypeNextCycle(currentCycle);
 
-  function handlePlayAndPause(
-    event: React.MouseEvent<HTMLButtonElement, MouseEvent>,
-  ) {
+  function handlePause(event: React.MouseEvent<HTMLButtonElement, MouseEvent>) {
+    // caso o botao esteja para iniciar ele retorna evitando q o evento seja previnido e caindo no handleCreateNewTask q vai lidar com esse evento
     if (!state.activeTask) return;
 
     event.preventDefault();
@@ -36,18 +35,9 @@ export function MainForm() {
     );
 
     if (confirmed) {
-      setState((prevState) => {
-        return {
-          ...prevState,
-          activeTask: null,
-          secondsRemaining: 0,
-          formattedSecondsRemaining: '00:00',
-          tasks: prevState.tasks.map((task: TaskModel) =>
-            task.id === prevState.activeTask!.id
-              ? { ...task, interruptDate: Date.now() }
-              : task,
-          ),
-        };
+      dispatch({
+        type: TaskActionTypes.INTERRUPT_TASK,
+        payload: state.activeTask,
       });
     }
   }
@@ -70,18 +60,7 @@ export function MainForm() {
       type,
     };
 
-    const secondsRemaining = newTask.duration * 60;
-
-    setState((prevState) => {
-      return {
-        ...prevState,
-        activeTask: newTask,
-        currentCycle: handleNextCurrentCycle(prevState.currentCycle),
-        secondsRemaining,
-        formattedSecondsRemaining: formatSecondsToMinutes(secondsRemaining),
-        tasks: [...prevState.tasks, newTask],
-      };
-    });
+    dispatch({ type: TaskActionTypes.START_TASK, payload: newTask });
   }
 
   return (
@@ -125,7 +104,7 @@ export function MainForm() {
           }
           aria-label={state.activeTask ? 'Parar timer' : 'Iniciar timer'}
           title={state.activeTask ? 'Parar timer' : 'Iniciar timer'}
-          onClick={handlePlayAndPause}
+          onClick={handlePause}
         />
       </div>
     </form>
